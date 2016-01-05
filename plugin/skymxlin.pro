@@ -40,10 +40,10 @@ macx {
     CONFIG += x86 ppc
 }
 
-HEADERS += \ 
-    some_h_file_we_need.h \
-    another_header_we_need.h
+HEADERS += \
+    headers/main.h \
+    headers/mainwindow.h
 
 SOURCES += \
-    some_source.cpp \
-    another_source.cpp 
+    src/main.cpp \
+    src/mainwindow.cpp
