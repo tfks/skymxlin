@@ -1,19 +1,19 @@
 #include "../headers/mainwindow.h"
 
+
+/*
 void create_window()
 {
-    gWindow = XPLMCreateWindow(50, 600, 300, 200,
-                               1,
-                               draw_callback,
-                               handle_key_callback,
-                               handle_mouse_click_callback,
-                               NULL);
+    gWindow = XPCreateWidget(50, 600, 300, 200,
+                        1,	// Visible
+                        "Configuration",	// desc
+                        1,		// root
+                        NULL,	// no container
+                        xpWidgetClass_MainWindow);
 }
 
 void draw_callback(XPLMWindowID inWindowID, void * inRefcon)
 {
-
-
 }
 
 void handle_key_callback(XPLMWindowID        inWindowID,
@@ -23,7 +23,6 @@ void handle_key_callback(XPLMWindowID        inWindowID,
                         void *               inRefcon,
                         int                  losingFocus)
 {
-
 }
 
 int handle_mouse_click_callback(XPLMWindowID          inWindowID,
@@ -35,3 +34,4 @@ int handle_mouse_click_callback(XPLMWindowID          inWindowID,
 
     return 1;
 }
+*/

@@ -5,8 +5,8 @@
 #include <string.h>
 #include <XPLMDisplay.h>
 #include <XPLMGraphics.h>
-
-extern XPLMWindowID gWindow;
+#include <XPWidgets.h>
+#include <XPStandardWidgets.h>
 
 void create_window();
 
