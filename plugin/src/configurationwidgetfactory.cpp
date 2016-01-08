@@ -6,142 +6,159 @@ std::vector<XPWidgetID> ConfigurationWidgetFactory::Create(int x, int y, int w, 
 
     XPWidgetID configurationWidget = NULL;
 
-    XPWidgetID configurationWindow = NULL,
-               configurationWindowCloudDetailAndDistance = NULL,
-               configurationWindowCloudSize = NULL;
+    int x2 = x + w;
+    int y2 = y - h;
 
-    XPWidgetID configurationWindowCloudDetailSliderControl = NULL,
-               configurationWindowCloudDistanceSliderControl = NULL;
+    createdWidgets[0] = ConfigurationWidgetFactory::createMainWidget(&x, &y, &x2, &y2, w, h);
 
+    configurationWidget = createdWidgets[0];
+
+    createdWidgets[1] = ConfigurationWidgetFactory::createMainSubWidget(configurationWidget, x+10, y-30, x2-10, y2+10);
+
+    std::vector<XPWidgetID> cloudDetailAndDistanceSubWidgets =
+            ConfigurationWidgetFactory::createCloudDetailAndDistanceSubWidgets(configurationWidget, &x, &y, &x2, &y2, w, h);
+
+    createdWidgets.reserve(cloudDetailAndDistanceSubWidgets.size());
+    createdWidgets.insert(createdWidgets.end(), cloudDetailAndDistanceSubWidgets.begin(), cloudDetailAndDistanceSubWidgets.end());
+
+    cloudDetailAndDistanceSubWidgets.clear();
+
+    return createdWidgets;
+}
+
+XPWidgetID ConfigurationWidgetFactory::createMainWidget(int * outX, int * outY, int * outX2, int * outY2, int width, int height)
+{
     int screenWidth, screenHeight;
 
     XPLMGetScreenSize(&screenWidth, &screenHeight);
 
-    x = (screenWidth / 2) - (w / 2);
-    y = (screenHeight / 2) + (h / 2);
+    *outX = (screenWidth / 2) - (width / 2);
+    *outY = (screenHeight / 2) + (height / 2);
 
-    int x2 = x + w;
-    int y2 = y - h;
+    *outX2 = (*outX + width);
+    *outY2 = (*outY - height);
 
-    createdWidgets[0] = XPCreateWidget(x, y, x2, y2,
-                                       1,                 // Visible
-                                       "Configuration",	// desc
-                                       1,                 // root
-                                       NULL,              // no container
-                                       xpWidgetClass_MainWindow);
-
-    configurationWidget = createdWidgets[0];
+    XPWidgetID mainWidget = XPCreateWidget(*outX, *outY, *outX2, *outY2,
+                                           1,                   // Visible
+                                           "Configuration",     // desc
+                                           1,                   // root
+                                           NULL,                // no container
+                                           xpWidgetClass_MainWindow);
 
     // Add Close Box decorations to the Main Widget
-    XPSetWidgetProperty(configurationWidget, xpProperty_MainWindowHasCloseBoxes, 1);
+    XPSetWidgetProperty(mainWidget, xpProperty_MainWindowHasCloseBoxes, 1);
 
-    // Create the Sub Widget window
-    createdWidgets[1] = XPCreateWidget(x+10, y-30, x2-10, y2+10,
-                                       1,       // Visible
-                                       "",      // desc
-                                       0,		// root
-                                       configurationWidget,
-                                       xpWidgetClass_SubWindow);
+    return mainWidget;
+}
 
-    configurationWindow = createdWidgets[1];
-
-
+XPWidgetID ConfigurationWidgetFactory::createMainSubWidget(XPWidgetID configurationWidget, int x, int y, int x2, int y2)
+{
+    XPWidgetID mainSubWidget = XPCreateWidget(x, y, x2, y2,
+                                              1,        // Visible
+                                              "",       // desc
+                                              0,		// root
+                                              configurationWidget,
+                                              xpWidgetClass_SubWindow);
     // Set the style to sub window
-    XPSetWidgetProperty(configurationWindow, xpProperty_SubWindowType, xpSubWindowStyle_SubWindow);
+    XPSetWidgetProperty(mainSubWidget, xpProperty_SubWindowType, xpSubWindowStyle_SubWindow);
 
-    x = x + 20;
-    y = y - 40;
+    return mainSubWidget;
+}
 
-    x2 = x + (w/2)-20;
-    y2 = y - (h/2)+100;
+std::vector<XPWidgetID> ConfigurationWidgetFactory::createCloudDetailAndDistanceSubWidgets(XPWidgetID configurationWidget, int * outX, int * outY, int * outX2, int * outY2, int width, int height)
+{
+    std::vector<XPWidgetID> cloudDetailAndDistanceSubWidgets(6);
+
+    *outX = *outX + 20;
+    *outY = *outY - 40;
+
+    *outX2 = *outX + (width / 2)-20;
+    *outY2 = *outY - (height / 2)+100;
 
     // Create Sub Widget window Cloud Detail and Distance
-    createdWidgets[2] = XPCreateWidget(x, y, x2, y2,
-                                       1,  // Visible
-                                       "", // Description,
-                                       0,  // root
-                                       configurationWidget,
-                                       xpWidgetClass_SubWindow);
+    cloudDetailAndDistanceSubWidgets[0] = XPCreateWidget(*outX, *outY, *outX2, *outY2,
+                                                         1,  // Visible
+                                                         "", // Description,
+                                                         0,  // root
+                                                         configurationWidget,
+                                                         xpWidgetClass_SubWindow);
 
-    configurationWindowCloudDetailAndDistance = createdWidgets[2];
+    XPWidgetID subWidgetCloudDetailAndDistance = cloudDetailAndDistanceSubWidgets[0];
 
     // Set the style to sub window
-    XPSetWidgetProperty(configurationWindowCloudDetailAndDistance, xpProperty_SubWindowType, xpSubWindowStyle_SubWindow);
+    XPSetWidgetProperty(subWidgetCloudDetailAndDistance, xpProperty_SubWindowType, xpSubWindowStyle_SubWindow);
 
-    x = x + 10;
-    y = y - 10;
+    *outX = *outX + 10;
+    *outY = *outY - 10;
 
-    x2 = x + (w/2)-30;
-    y2 = y - 20;
+    *outX2 = *outX + (width / 2)-30;
+    *outY2 = *outY - 20;
 
     // Add informational label
-    createdWidgets[3] = XPCreateWidget(x, y, x2, y2,
-                                       1,
-                                       "These settings will effect memory and performance!",
-                                       0,
-                                       configurationWidget,
-                                       xpWidgetClass_Caption);
-    y = y - 20;
+    cloudDetailAndDistanceSubWidgets[1] = XPCreateWidget(*outX, *outY, *outX2, *outY2,
+                                                         1,
+                                                         "These settings will effect memory and performance!",
+                                                         0,
+                                                         configurationWidget,
+                                                         xpWidgetClass_Caption);
+    *outY = *outY - 20;
 
-    x2 = x2 - 10;
-    y2 = y - 20;
+    *outX2 = *outX2 - 10;
+    *outY2 = *outY - 20;
 
     // Add label for Cloud Detail slider
-    createdWidgets[4] = XPCreateWidget(x, y, x2, y2,
-                                       1,
-                                       "Cloud detail",
-                                       0,
-                                       configurationWidget,
-                                       xpWidgetClass_Caption);
-    y = y - 20;
-    y2 = y - 20;
+    cloudDetailAndDistanceSubWidgets[2] = XPCreateWidget(*outX, *outY, *outX2, *outY2,
+                                                         1,
+                                                         "Cloud detail",
+                                                         0,
+                                                         configurationWidget,
+                                                         xpWidgetClass_Caption);
+
+    *outY = *outY - 20;
+    *outY2 = *outY - 20;
 
     // Add slider control for Cloud Detail
-    createdWidgets[5] = XPCreateWidget(x, y, x2, y2,
-                                       1,
-                                       "",
-                                       0,
-                                       configurationWidget,
-                                       xpWidgetClass_ScrollBar);
-
-    configurationWindowCloudDetailSliderControl = createdWidgets[5];
-
+    cloudDetailAndDistanceSubWidgets[3] = XPCreateWidget(*outX, *outY, *outX2, *outY2,
+                                                         1,
+                                                         "",
+                                                         0,
+                                                         configurationWidget,
+                                                         xpWidgetClass_ScrollBar);
     // Set slider options
-    XPSetWidgetProperty(configurationWindowCloudDetailSliderControl, xpProperty_ScrollBarMin, 0);
-    XPSetWidgetProperty(configurationWindowCloudDetailSliderControl, xpProperty_ScrollBarMax, 100);
-    XPSetWidgetProperty(configurationWindowCloudDetailSliderControl, xpProperty_ScrollBarSliderPosition, 50);
-    XPSetWidgetProperty(configurationWindowCloudDetailSliderControl, xpProperty_ScrollBarType, xpScrollBarTypeSlider);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[3], xpProperty_ScrollBarMin, 0);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[3], xpProperty_ScrollBarMax, 100);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[3], xpProperty_ScrollBarSliderPosition, 50);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[3], xpProperty_ScrollBarType, xpScrollBarTypeSlider);
 
-    y = y - 30;
-    y2 = y - 20;
+    *outY = *outY - 30;
+    *outY2 = *outY - 20;
 
     // Add label for Cloud Detail slider
-    createdWidgets[6] = XPCreateWidget(x, y, x2, y2,
-                                       1,
-                                       "Cloud distance",
-                                       0,
-                                       configurationWidget,
-                                       xpWidgetClass_Caption);
-    y = y - 20;
-    y2 = y - 20;
+    cloudDetailAndDistanceSubWidgets[4] = XPCreateWidget(*outX, *outY, *outX2, *outY2,
+                                                         1,
+                                                         "Cloud distance",
+                                                         0,
+                                                         configurationWidget,
+                                                         xpWidgetClass_Caption);
+
+    *outY = *outY - 20;
+    *outY2 = *outY - 20;
 
     // Add slider control for Cloud Draw Distance
-    createdWidgets[7] = XPCreateWidget(x, y, x2, y2,
-                                       1,
-                                       "",
-                                       0,
-                                       configurationWidget,
-                                       xpWidgetClass_ScrollBar);
-
-    configurationWindowCloudDistanceSliderControl = createdWidgets[7];
+    cloudDetailAndDistanceSubWidgets[5] = XPCreateWidget(*outX, *outY, *outX2, *outY2,
+                                                         1,
+                                                         "",
+                                                         0,
+                                                         configurationWidget,
+                                                         xpWidgetClass_ScrollBar);
 
     // Set slider options
-    XPSetWidgetProperty(configurationWindowCloudDistanceSliderControl, xpProperty_ScrollBarMin, 0);
-    XPSetWidgetProperty(configurationWindowCloudDistanceSliderControl, xpProperty_ScrollBarMax, 100);
-    XPSetWidgetProperty(configurationWindowCloudDistanceSliderControl, xpProperty_ScrollBarSliderPosition, 10);
-    XPSetWidgetProperty(configurationWindowCloudDistanceSliderControl, xpProperty_ScrollBarType, xpScrollBarTypeSlider);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[5], xpProperty_ScrollBarMin, 0);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[5], xpProperty_ScrollBarMax, 100);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[5], xpProperty_ScrollBarSliderPosition, 10);
+    XPSetWidgetProperty(cloudDetailAndDistanceSubWidgets[5], xpProperty_ScrollBarType, xpScrollBarTypeSlider);
 
-    return createdWidgets;
+    return cloudDetailAndDistanceSubWidgets;
 }
 
 

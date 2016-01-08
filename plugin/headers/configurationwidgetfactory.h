@@ -11,6 +11,11 @@
 
 class ConfigurationWidgetFactory
 {
+private:
+    static XPWidgetID createMainWidget(int *outX, int *outY, int *outX2, int *outY2, int width, int height);
+    static XPWidgetID createMainSubWidget(XPWidgetID configurationWidget, int x, int y, int x2, int y2);
+    static std::vector<XPWidgetID> createCloudDetailAndDistanceSubWidgets(XPWidgetID configurationWidget, int *outX, int *outY, int *outX2, int *outY2, int width, int height);
+
 public:
     //WidgetFactory() {}
     static std::vector<XPWidgetID> Create(int x, int y, int w, int h);
