@@ -42,8 +42,10 @@ macx {
 
 HEADERS += \
     headers/main.h \
-    headers/mainwindow.h
+    headers/mainwindow.h \
+    headers/configurationwidgetfactory.h
 
 SOURCES += \
     src/main.cpp \
-    src/mainwindow.cpp
+    src/mainwindow.cpp \
+    src/configurationwidgetfactory.cpp

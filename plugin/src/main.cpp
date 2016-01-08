@@ -8,62 +8,17 @@
 #include <XPWidgetDefs.h>
 
 #include "../headers/main.h"
+#include "../headers/configurationwidgetfactory.h"
 
 static XPLMMenuID menu;
-
-static int itemShow;
 
 static int configWindowCreated;
 
 // Widgets
-static XPWidgetID	ConfigurationWidget = NULL, ConfigurationWindow = NULL;
+static std::vector<XPWidgetID> ConfigurationWidgets(8);
 
 // Intitial window size
-static int x = 300, y = 500, w = 600, h = 400;
-
-void menu_callback(void *inMenuRef, void *inItemRef)
-{
-    if (!strcmp((char *) inItemRef, "Configuration"))
-    {
-        if (configWindowCreated == 0)
-        {
-            int x2 = x + w;
-            int y2 = y - h;
-
-            ConfigurationWidget = XPCreateWidget(x, y, x2, y2,
-                                1,	// Visible
-                                "Configuration",	// desc
-                                1,		// root
-                                NULL,	// no container
-                                xpWidgetClass_MainWindow);
-
-            // Add Close Box decorations to the Main Widget
-            XPSetWidgetProperty(ConfigurationWidget, xpProperty_MainWindowHasCloseBoxes, 1);
-
-            // Create the Sub Widget window
-            ConfigurationWindow = XPCreateWidget(x+10, y-30, x2-10, y2+10,
-                                                 1,	// Visible
-                                                 "",	// desc
-                                                 0,		// root
-                                                 ConfigurationWidget,
-                                                 xpWidgetClass_SubWindow);
-
-            // Set the style to sub window
-            XPSetWidgetProperty(ConfigurationWindow, xpProperty_SubWindowType, xpSubWindowStyle_SubWindow);
-
-            // Register our widget handler
-            XPAddWidgetCallback(ConfigurationWidget, ConfigurationWidgetHandler);
-
-            configWindowCreated = 1;
-        }
-        else {
-            if (!XPIsWidgetVisible(ConfigurationWidget)) {
-                XPShowWidget(ConfigurationWidget);
-            }
-        }
-
-    }
-}
+static int x = 0, y = 0, w = 700, h = 500;
 
 PLUGIN_API int XPluginStart(char *name, char *sig, char *desc)
 {
@@ -89,8 +44,11 @@ PLUGIN_API void XPluginStop(void)
 {
     printf("Plugin Stop\n");
 
-    if (ConfigurationWidget && configWindowCreated == 1) {
-        XPLMDestroyWindow(ConfigurationWidget);
+    if ((ConfigurationWidgets.size() > 0) && configWindowCreated == 1)
+    {
+        for (int i = sizeof(ConfigurationWidgets); i --> 0;) {
+            XPLMDestroyWindow(ConfigurationWidgets[i]);
+        }
 
         configWindowCreated = 0;
     }
@@ -117,6 +75,9 @@ PLUGIN_API void XPluginDisable(void)
 
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID from, long msg, void *param)
 {
+    Q_UNUSED(from);
+    Q_UNUSED(msg);
+    Q_UNUSED(param);
 }
 
 int ConfigurationWidgetHandler(XPWidgetMessage	inMessage,
@@ -124,11 +85,15 @@ int ConfigurationWidgetHandler(XPWidgetMessage	inMessage,
                                intptr_t			inParam1,
                                intptr_t			inParam2)
 {
+    Q_UNUSED(inWidget);
+    Q_UNUSED(inParam1);
+    Q_UNUSED(inParam2);
+
     if (inMessage == xpMessage_CloseButtonPushed)
     {
         if (configWindowCreated == 1)
         {
-            XPHideWidget(ConfigurationWidget);
+            XPHideWidget(ConfigurationWidgets[0]);
         }
 
         return 1;
@@ -141,4 +106,29 @@ int ConfigurationWidgetHandler(XPWidgetMessage	inMessage,
     }
 
     return 0;
+}
+
+
+void menu_callback(void *inMenuRef, void *inItemRef)
+{
+    Q_UNUSED(inMenuRef);
+
+    if (!strcmp((char *) inItemRef, "Configuration"))
+    {
+        if (configWindowCreated == 0)
+        {
+            ConfigurationWidgets = ConfigurationWidgetFactory::Create(x, y, w, h);
+
+            // Register our widget handler
+            XPAddWidgetCallback(((XPWidgetID)ConfigurationWidgets[0]), ConfigurationWidgetHandler);
+
+            configWindowCreated = 1;
+        }
+        else {
+            if (!XPIsWidgetVisible(ConfigurationWidgets[0])) {
+                XPShowWidget(ConfigurationWidgets[0]);
+            }
+        }
+
+    }
 }
